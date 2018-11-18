@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import VideoPlayer from './videoPlayer/videoPlayer';
+// import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'));
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.unregister();
+ReactDOM.render(
+  (
+    <VideoPlayer src="https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_30mb.mp4" />
+  ),
+  document.getElementById('root')
+);
