@@ -1,6 +1,12 @@
 import React from 'react';
 import QueueVideo from './queueVideo';
 
+/**
+ * @class QueueVideoContainer
+ * @todo css, beautify
+ * 
+ * @description Show a list of video in the sidebar of the videoContainer
+ */
 class QueueVideoContainer extends React.Component {
     renderQueueVideo() {
       let queueVideoList = [];

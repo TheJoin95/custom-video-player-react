@@ -1,5 +1,10 @@
 import React from 'react';
 
+/**
+ * @class QueueVideo
+ * 
+ * @description Video element used in the sidebar
+ */
 class QueueVideo extends React.Component {
     render() {
       return (

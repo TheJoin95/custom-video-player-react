@@ -1,5 +1,11 @@
 import React from 'react';
 
+/**
+ * @class Content
+ * @todo add real content, images, comment and more
+ * 
+ * @description Show some content at the bottom of the video player
+ */
 class Content extends React.Component {
     render() {
       return (

@@ -3,6 +3,12 @@ import Controls from '../controls/controls';
 import QueueVideoContainer from '../queueVideo/queueVideoContainer';
 import Content from '../content/content';
 
+/**
+ * @class VideoPlayer
+ * @todo add subtitles button, export state obj
+ * 
+ * @description Show a custom video player with a sidebar inside a container
+ */
 class VideoPlayer extends React.Component {
     videoElement = React.createRef();
     PADDING_CONTAINER = 5;
@@ -11,17 +17,17 @@ class VideoPlayer extends React.Component {
       super(props);
       this.state = {
         paused: true,
-        transitionIcon: 'timer',
+        transitionIcon: 'timer', // material-icon to show in the transitions
         autoplay: props.autoPlay ? true : false,
         muted: props.muted ? true : false,
-        volume: 0.8,
-        status: 'loading',
+        volume: 0.8, // from 0 to 1
+        status: 'loading', // dynamic videoplayer's status
         loop: false,
-        togglePlayIcon: 'play_arrow',
-        volumeIcon: 'volume_up',
+        togglePlayIcon: 'play_arrow', // material-icon to show in the controls bar
+        volumeIcon: 'volume_up', // material-icon to show in the controls bar for the volume button
         currentTime: "0:00",
         duration: "0:00",
-        playingVideo: {
+        playingVideo: { // obj that represents the playing video
           title: "Big Buck Bunny",
           image: "images/big_buck.png",
           src: "https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_30mb.mp4",
@@ -29,14 +35,14 @@ class VideoPlayer extends React.Component {
         // subtitles: props.subtitles ? true : false,
         // allowFullscreen: props.allowFullscreen ? true : false,
         isFullScreen: false,
-        progressBar: {
+        progressBar: { // progress bar config
           value: 0,
           min: 0,
           max: 0,
           compatibleElement: React.createRef()
         },
-        featuredVideo: Array(3).fill(null),
-        queueVideo: [
+        featuredVideo: Array(3).fill(null), // test, future implementation
+        queueVideo: [ // video in queue
           {
             src: "https://download.blender.org/durian/trailer/sintel_trailer-720p.mp4",
             title: "Sintel - A blender movie",
@@ -64,7 +70,11 @@ class VideoPlayer extends React.Component {
           }
         ]
       };
-  
+      
+      /**
+       * Functions bind to this class
+       * So I can use it in the children component of this app
+      */
       this.changeVideo = this.changeVideo.bind(this);
       this.previousVideo = this.previousVideo.bind(this);
       this.clearInterval = this.clearInterval.bind(this);
@@ -80,24 +90,36 @@ class VideoPlayer extends React.Component {
       this.handleProgressBarClick = this.handleProgressBarClick.bind(this);
     }
     
+    /**
+     * @function togglePlay
+     * @description Play | Pause the player and update the player's status
+     * @returns void
+     */
     togglePlay() {
       const video = this.videoElement.current;
+      let togglePlayIcon = 'pause';
       if (video.paused || video.ended) {
         video.play();
-        this.setState({togglePlayIcon: 'pause'});
       } else {
-        this.setState({togglePlayIcon: 'play_arrow'});
+        togglePlayIcon = 'play_arrow';
         video.pause();
       }
       video.focus();
   
       this.setState({
+        togglePlayIcon: togglePlayIcon,
         paused: video.paused,
         status: video.paused ? 'paused' : 'playing',
         transitionIcon: video.paused ? 'play_arrow' : 'timer'
       })
     }
-  
+    
+    /**
+     * @function onTimeUpdate
+     * @description HTMLVideoElement event that is fired everytime the player show the next frame (based on video.currentTime).
+     * @description It will update the currentTime and the progressBar Componenet with the real progress
+     * @returns void
+     */
     onTimeUpdate() {
       const progressBar = this.state.progressBar;
       const videoElement = this.videoElement.current;
@@ -112,7 +134,13 @@ class VideoPlayer extends React.Component {
         progressBar: progressBar
       });
     }
-  
+    
+    /**
+     * @function onLoadedMetadata
+     * @description HTMLVideoElement event that is fired when the video has loaded the minimun metadata
+     * @description It will update the duration, the progressbar and the status of the player from loading to loaded/paused
+     * @returns void
+     */
     onLoadedMetadata() {
       const progressBar = this.state.progressBar;
       const videoElement = this.videoElement.current;
@@ -126,7 +154,13 @@ class VideoPlayer extends React.Component {
         progressBar: progressBar
       });
     }
-  
+    
+    /**
+     * @function handleProgressBarClick
+     * @description It handle the progressbar click for seeking the right frame to show
+     * @description PAY ATTENTION: the right position is based on the offset of the progress element from the left of the page. Be careful in the margins and padding
+     * @returns void
+     */
     handleProgressBarClick(e) {
       const videoElement = this.videoElement.current;
       const PADDING_CONTAINER = this.PADDING_CONTAINER;
@@ -134,6 +168,11 @@ class VideoPlayer extends React.Component {
       videoElement.currentTime = pos * videoElement.duration;
     }
   
+    /**
+     * @function handleKeyUp
+     * @description By pressing the left arrow or the right arrow we will travel over time. By pressing the space key we will stop the time.
+     * @returns void
+     */
     handleKeyUp(keyCode) {
       const videoElement = this.videoElement.current;
       switch(keyCode) {
@@ -157,7 +196,13 @@ class VideoPlayer extends React.Component {
         break;
       }    
     }
-  
+    
+    /**
+     * @function handleVolumeChange
+     * @description It handle the event from the input range and it will change the volume. NOTE: the value is decimal; in the mobile browser this feature is disabled
+     * @param e - HTMLEvent - the event from the input range
+     * @returns void
+     */
     handleVolumeChange(e) {
       const videoElement = this.videoElement.current;
       if(e !== null && e.target.value > 0) {
@@ -167,7 +212,12 @@ class VideoPlayer extends React.Component {
         this.setState({volume: e.target.value, volumeIcon: 'volume_mute'});
       }
     }
-  
+    
+    /**
+     * @function handleFullscreen
+     * @description Toggle the fullscreen view
+     * @returns void
+     */
     handleFullscreen() {
       const videoElement = this.videoElement.current;
       if (this.state.isFullScreen === true) {
@@ -184,23 +234,44 @@ class VideoPlayer extends React.Component {
         this.setState({isFullScreen: true});
      }
     }
-  
+    
+    /**
+     * @function toggleMute
+     * @description Toggle the mute flag
+     * @returns void
+     */
     toggleMute() {
       const current = this.state;
       this.setState({muted: !current.muted, volumeIcon: (!current.muted === true ? 'volume_off' : 'volume_up')});
     }
-  
+    
+    /**
+     * @function stop
+     * @description It will stop and reset to the start the video
+     * @returns void
+     */
     stop() {
       const videoElement = this.videoElement.current;
       videoElement.pause();
       videoElement.currentTime = 0;
     }
   
+    /**
+     * @function toggleLoop
+     * @description It will active the autoplay. The video "will not end at the end"
+     * @returns void
+     */
     toggleLoop() {
       const current = this.state;
       this.setState({loop: !current.loop});
     }
   
+    /**
+     * @function forward
+     * @description It will increment the currentTime
+     * @todo not fluid, any suggest? Maybe create the settings for speed up the reproducing speed like 2x 1.5x etc
+     * @returns void
+     */
     forward() {
       const videoElement = this.videoElement.current;
       this.setState({forwardInterval: setInterval(function() {
@@ -208,19 +279,35 @@ class VideoPlayer extends React.Component {
       }, 400)});
     }
   
+    /**
+     * @function rewind
+     * @description It will decrement the currentTime
+     * @todo not fluid, any suggest? Maybe create the settings for speed up the reproducing speed like -2x -1.5x etc
+     * @returns void
+     */
     rewind() {
       const videoElement = this.videoElement.current;
       this.setState({rewindInterval: setInterval(function() {
         videoElement.currentTime -= 1.5;
       }, 400)});
     }
-  
+
+    /**
+     * @function clearInterval
+     * @description It will clear the rewind and forward interval
+     * @returns void
+     */
     clearInterval() {
       const current = this.state;
       clearInterval(current.rewindInterval);
       clearInterval(current.forwardInterval);
     }
   
+    /**
+     * @function toggleSpinner
+     * @description It's not a real spinner. It is just a clock
+     * @returns void
+     */
     toggleSpinner() {
       const current = this.state;
       let status = 'loaded';
@@ -234,6 +321,11 @@ class VideoPlayer extends React.Component {
       });
     }
   
+    /**
+     * @function handleTouchStart
+     * @description Testing, not used
+     * @returns void
+     */
     handleTouchStart(e) {
       const current = this.state;
       this.setState({
@@ -242,6 +334,11 @@ class VideoPlayer extends React.Component {
       return false;
     }
   
+    /**
+     * @function handleTouchEnd
+     * @description Testing, not used
+     * @returns void
+     */
     handleTouchEnd(e) {
       const current = this.state;
       this.setState({
@@ -249,7 +346,19 @@ class VideoPlayer extends React.Component {
       });
     }
   
-    changeVideo(title, image, src) {
+    /**
+     * @function changeVideo
+     * @description It will change the video with the selected one and requeue the actual video
+     * @param title - string - title of the video
+     * @param image - string - image of the video
+     * @param src - string - url of the video to reproduce
+     * @param top - bool - optional - flag to requeue the actual video at the bottom or at the top of the queue video list
+     * @returns void
+     */
+    changeVideo(title, image, src, top=false) {
+      const current = this.state;
+      this.requeueVideo(current.playingVideo, top);
+
       this.setState({
         status: 'changing',
         transitionIcon: 'timer',
@@ -265,6 +374,13 @@ class VideoPlayer extends React.Component {
       return false;
     }
   
+    /**
+     * @function requeueVideo
+     * @description It will requeue the video (no duplicate)
+     * @param videoObj - obj - {title: string, src: string, image: string}
+     * @param top - bool - optional - flag to requeue the videoObj at the bottom or at the top of the queue video list
+     * @returns void
+     */
     requeueVideo(videoObj, top=false) {
       const current = this.state;
       let alreadyInQueue = false;
@@ -274,7 +390,8 @@ class VideoPlayer extends React.Component {
           alreadyInQueue = true;
         }
       });
-  
+      
+      // If is not present in the list
       if(alreadyInQueue === false) {
         if(top === true)
           current.queueVideo.unshift(videoObj);
@@ -288,31 +405,38 @@ class VideoPlayer extends React.Component {
   
     }
   
+    /**
+     * @function nextVideo
+     * @description It will reproduce the next video in queue
+     * @returns void
+     */
     nextVideo() {
       const current = this.state;
       var queueVideo = current.queueVideo;
       let nextVideo = queueVideo.shift();
-  
-      this.requeueVideo(current.playingVideo);
       
-      console.log(nextVideo);
       this.changeVideo(nextVideo.title, nextVideo.image, nextVideo.src);
     }
   
+    /**
+     * @function previousVideo
+     * @description It will reproduce the previous video in queue (the last one)
+     * @returns void
+     */
     previousVideo() {
       const current = this.state;
       var queueVideo = current.queueVideo;
       let prevVideo = queueVideo.pop();
-  
-      this.requeueVideo(current.playingVideo, true);
       
-      console.log(prevVideo);
-      this.changeVideo(prevVideo.title, prevVideo.image, prevVideo.src);
+      this.changeVideo(prevVideo.title, prevVideo.image, prevVideo.src, true);
     }
-  
+    
+    /**
+     * @function onVideoEnded
+     * @description HTMLMediaEvent - At the end of the video I need to reproduce the next video in the queue list. Actually I will wait 2sec to make a fadeOut effect
+     * @returns void
+     */
     onVideoEnded() {
-      // check queue
-      // se esiste un video successivo, vai avanti
       this.setState({
         status: 'ended',
         transitionIcon: ''
@@ -325,9 +449,9 @@ class VideoPlayer extends React.Component {
     render() {
       return (
         <div className="videoWrapper">
+          <h2>{this.state.playingVideo.title}</h2>
           <div className="col-2-3">
             <div id="videoContainer" className={this.state.status}>
-              <h2>{this.state.playingVideo.title}</h2>
               <div onClick={() => (this.state.status === 'paused' ? this.togglePlay() : '')} className={`${this.state.status}-transition transition`}><i className="material-icons">{this.state.transitionIcon}</i></div>
               <video 
                 tabIndex="-1"

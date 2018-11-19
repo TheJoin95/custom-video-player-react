@@ -1,6 +1,11 @@
 import React from 'react';
 import ProgressBar from '../progress/progressBar'
 
+/**
+ * @class Controls
+ * 
+ * @description Show the custom controls on the video player (even in the fullscreen mode)
+ */
 class Controls extends React.Component {
     render() {
       return (

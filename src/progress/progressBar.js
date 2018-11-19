@@ -1,5 +1,10 @@
 import React from 'react';
 
+/**
+ * @class ProgressBar
+ * 
+ * @description Show a cliclable progress bar that represent the progress of the video player
+ */
 class ProgressBar extends React.Component{
     render() {
         return (
